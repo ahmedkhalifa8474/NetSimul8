@@ -1,11 +1,10 @@
-import scapy.all as scapy # type: ignore
+import scapy.all as scapy  # type: ignore
 import socket
 import time
 import threading
 import logging
 import re
-import argparse
-from tkinter import Tk, Label, Entry, Button, Text, END, messagebox, StringVar, OptionMenu
+from tkinter import Tk, Label, Entry, Button, Text, END, messagebox
 
 
 ASCII_BANNER = r"""
@@ -18,6 +17,7 @@ ASCII_BANNER = r"""
                          __/ |                           
                         |___/                            
 """
+
 
 logging.basicConfig(filename="network_traffic.log", level=logging.INFO, format="%(asctime)s - %(message)s")
 
@@ -38,7 +38,6 @@ def validate_port_range(port_range):
         pass
     return None
 
-# Grab banner from open port
 def grab_banner(ip, port):
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -81,14 +80,14 @@ def brute_force_simulation(target_ip, target_port, output_text):
     output_text.insert(END, "[+] Starting Brute Force Simulation...\n")
     usernames = ["admin", "user", "root"]
     passwords = ["1234", "password", "admin"]
-    
+
     for username in usernames:
         for password in passwords:
             attempt = f"[-] Attempting login with Username: {username}, Password: {password}"
             output_text.insert(END, attempt + "\n")
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.settimeout(2)  
+                s.settimeout(2)
                 s.connect((target_ip, target_port))
                 s.sendall(f"{username}:{password}".encode())
                 s.close()
@@ -101,11 +100,11 @@ def brute_force_simulation(target_ip, target_port, output_text):
                 output_text.insert(END, f"[!] Error: {e}\n")
     output_text.insert(END, "[+] Brute Force Simulation Completed.\n")
 
-# Data Exfiltration Simulation 
+# Data Exfiltration Simulation Function
 def data_exfiltration_simulation(target_ip, target_port, payload, output_text):
     output_text.insert(END, "[+] Starting Data Exfiltration Simulation...\n")
     if not payload:
-        payload = "This is a simulated exfiltration payload. " * 10  
+        payload = "This is a simulated exfiltration payload. " * 10  # Default payload
 
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -122,55 +121,52 @@ class NetworkToolGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("NetSimul8")
-        self.root.geometry("600x500")
+        self.root.geometry("800x700")
 
-    
+        
         self.banner_label = Label(root, text=ASCII_BANNER, font=("Courier", 10))
         self.banner_label.pack()
 
-       
+        
         self.ip_label = Label(root, text="Target IP:")
         self.ip_label.pack()
         self.ip_entry = Entry(root, width=30)
         self.ip_entry.pack()
 
-      
+        self.port_scan_label = Label(root, text="\nPort Scanning", font=("Arial", 12, "bold"))
+        self.port_scan_label.pack()
         self.port_range_label = Label(root, text="Port Range (e.g., 20-80):")
         self.port_range_label.pack()
         self.port_range_entry = Entry(root, width=30)
         self.port_range_entry.pack()
+        self.port_scan_button = Button(root, text="Start Port Scan", command=self.start_port_scan)
+        self.port_scan_button.pack()
 
-        
+        self.brute_force_label = Label(root, text="\nBrute Force Simulation", font=("Arial", 12, "bold"))
+        self.brute_force_label.pack()
         self.brute_force_port_label = Label(root, text="Brute Force Port:")
         self.brute_force_port_label.pack()
         self.brute_force_port_entry = Entry(root, width=30)
         self.brute_force_port_entry.pack()
+        self.brute_force_button = Button(root, text="Start Brute Force", command=self.start_brute_force)
+        self.brute_force_button.pack()
 
-      
+        self.exfil_label = Label(root, text="\nData Exfiltration Simulation", font=("Arial", 12, "bold"))
+        self.exfil_label.pack()
         self.exfil_port_label = Label(root, text="Exfiltration Port:")
         self.exfil_port_label.pack()
         self.exfil_port_entry = Entry(root, width=30)
         self.exfil_port_entry.pack()
-
-     
         self.payload_label = Label(root, text="Payload (for exfiltration):")
         self.payload_label.pack()
         self.payload_entry = Entry(root, width=30)
         self.payload_entry.pack()
-
-      
-        self.output_text = Text(root, height=15, width=70)
-        self.output_text.pack()
-
-      
-        self.scan_button = Button(root, text="Start Port Scan", command=self.start_port_scan)
-        self.scan_button.pack()
-
-        self.brute_button = Button(root, text="Start Brute Force", command=self.start_brute_force)
-        self.brute_button.pack()
-
         self.exfil_button = Button(root, text="Start Data Exfiltration", command=self.start_data_exfiltration)
         self.exfil_button.pack()
+
+        # Output Text
+        self.output_text = Text(root, height=20, width=90)
+        self.output_text.pack()
 
     def start_port_scan(self):
         target_ip = self.ip_entry.get()
@@ -213,6 +209,7 @@ class NetworkToolGUI:
             return
         self.output_text.insert(END, "[+] Starting Data Exfiltration Simulation...\n")
         data_exfiltration_simulation(target_ip, target_port, payload, self.output_text)
+
 
 if __name__ == "__main__":
     root = Tk()
