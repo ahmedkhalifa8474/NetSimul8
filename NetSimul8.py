@@ -21,14 +21,14 @@ ASCII_BANNER = r"""
 
 logging.basicConfig(filename="network_traffic.log", level=logging.INFO, format="%(asctime)s - %(message)s")
 
-
+# Validate IP address
 def validate_ip(ip):
     pattern = re.compile(r"^(\d{1,3}\.){3}\d{1,3}$")
     if pattern.match(ip):
         return all(0 <= int(octet) <= 255 for octet in ip.split("."))
     return False
 
-
+# Validate port range
 def validate_port_range(port_range):
     try:
         start, end = map(int, port_range.split("-"))
@@ -37,6 +37,7 @@ def validate_port_range(port_range):
     except ValueError:
         pass
     return None
+
 
 def grab_banner(ip, port):
     try:
@@ -53,6 +54,10 @@ def grab_banner(ip, port):
 def scan_port(ip, port, output_text):
     syn_packet = scapy.IP(dst=ip) / scapy.TCP(dport=port, flags="S")
     response = scapy.sr1(syn_packet, timeout=1, verbose=0)
+    
+    # Debug: Print the response
+    print(f"Scanning port {port} on {ip}. Response: {response}")
+    
     if response and response.haslayer(scapy.TCP) and response[scapy.TCP].flags == 0x12:
         result = f"[+] Port {port} is open."
         output_text.insert(END, result + "\n")
@@ -63,6 +68,9 @@ def scan_port(ip, port, output_text):
             output_text.insert(END, banner_result + "\n")
             logging.info(banner_result)
         scapy.send(scapy.IP(dst=ip) / scapy.TCP(dport=port, flags="R"), verbose=0)
+    else:
+        # Debug: Print if the port is closed or filtered
+        print(f"Port {port} is closed or filtered.")
 
 def port_scanner(target_ip, port_range, output_text):
     output_text.insert(END, "[+] Starting Port Scanning...\n")
@@ -123,16 +131,17 @@ class NetworkToolGUI:
         self.root.title("NetSimul8")
         self.root.geometry("800x700")
 
-        
+     
         self.banner_label = Label(root, text=ASCII_BANNER, font=("Courier", 10))
         self.banner_label.pack()
 
-        
+  
         self.ip_label = Label(root, text="Target IP:")
         self.ip_label.pack()
         self.ip_entry = Entry(root, width=30)
         self.ip_entry.pack()
 
+        
         self.port_scan_label = Label(root, text="\nPort Scanning", font=("Arial", 12, "bold"))
         self.port_scan_label.pack()
         self.port_range_label = Label(root, text="Port Range (e.g., 20-80):")
@@ -142,6 +151,7 @@ class NetworkToolGUI:
         self.port_scan_button = Button(root, text="Start Port Scan", command=self.start_port_scan)
         self.port_scan_button.pack()
 
+        
         self.brute_force_label = Label(root, text="\nBrute Force Simulation", font=("Arial", 12, "bold"))
         self.brute_force_label.pack()
         self.brute_force_port_label = Label(root, text="Brute Force Port:")
@@ -164,7 +174,7 @@ class NetworkToolGUI:
         self.exfil_button = Button(root, text="Start Data Exfiltration", command=self.start_data_exfiltration)
         self.exfil_button.pack()
 
-        # Output Text
+     
         self.output_text = Text(root, height=20, width=90)
         self.output_text.pack()
 
