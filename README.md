@@ -72,12 +72,6 @@ Clone the Repository:
 # git clone https://github.com/ahmedkhalifa8474/NetSimul8.git
 
 
-# Install Dependencies:
-
-
- # pip install -r requirements.txt
-
-
 # Run the Tool:
 
 
@@ -113,3 +107,4 @@ Integration with SIEMs: Seamless integration with Splunk, ELK Stack, and other S
 # 🌟 Join the Community
 NetSimul8 is open-source and community-driven. If you’re a Blue Teamer, security professional, or IT administrator, join us in making NetSimul8 even better!
 
+![image](https://github.com/user-attachments/assets/c1e5c300-69d5-42a8-aaac-62f6fca3c544)
